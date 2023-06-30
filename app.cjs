@@ -20,6 +20,7 @@ const io = new Server(server, {
 io.on("connection", (socket)=>{
     console.log("user connected: " + socket.id)
     socket.on("sendMessage", (payload)=>{
+        socket.broadcast.emit("receiveMessage", payload)
         console.log(payload.message)
     })
 })
