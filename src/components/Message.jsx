@@ -1,11 +1,11 @@
 export const Message = ({text, name, sent}) => {
-	let sentCol = sent? "#22c55e": "rgb(180, 180, 180)"
+	let sentCol = sent? "#22c55e": "rgb(180, 180, 180)";
+	let justify = sent? "flex-end": "flex-start";
 	return (
-		<div className="w-full">
-			<div style={{backgroundColor: sentCol, textAlign: "left"}} className="text-lg font-semibold m-2 bg-green-500 inline-block rounded-xl p-3 drop-shadow-xl">
+		<div style={{justifyContent: justify}} className="w-full h-auto mb-2 drop-shadow-xl flex items-center ">
+			<div style={{backgroundColor: sentCol}} className="bg-green-500 max-w-md inline-block p-2 rounded-xl text-lg font-semibold">
 				{text}
 			</div>
 		</div>
-
 	)
 }
