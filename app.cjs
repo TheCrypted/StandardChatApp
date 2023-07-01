@@ -5,7 +5,9 @@ const {Server} = require('socket.io')
 const cors = require('cors')
 const {urlencoded} = require("express");
 const PORT = 3030;
-let users = []
+let users = {
+    Room1: []
+}
 
 app.use(cors());
 app.use(express.json());
@@ -20,25 +22,43 @@ const io = new Server(server, {
 })
 io.on("connection", (socket)=>{
     console.log("user connected: " + socket.id)
-    socket.on("sendMessage", (payload)=>{
-        if(!users.includes(payload.user)){
-            users.push(payload.user)
-            io.emit("userOnline", {users})
+    let room = "Room1"
+    socket.join(room)
+    socket.on("changeRoom", (payload)=>{
+        //Leave current room and update all existing room users of disconnection
+        let newUsers = users[room].filter(user => user !== payload.user)
+        users[room] = newUsers
+        console.log(`User ${payload.user} changed rooms`)
+        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room]})
+        socket.leave(room)
+        //Join new room and update all existing room users of new Joinee
+        room = payload.room
+        if(!users[room]){
+            users[room] = []
         }
-        socket.broadcast.emit("receiveMessage", payload)
+        users[room].push(payload.user)
+        socket.join(payload.room)
+        io.to(room).emit("userOnline", {users: users[room]})
+    })
+    socket.on("sendMessage", (payload)=>{
+        if(!users[room].includes(payload.user)){
+            users[room].push(payload.user)
+            io.to(room).emit("userOnline", {users: users[room]})
+        }
+        socket.broadcast.to(room).emit("receiveMessage", payload)
         // socket.emit("userOnline", {users})
     })
     socket.on("userTyping", (payload)=>{
-        socket.broadcast.emit("otherUserTyping", payload)
+        socket.broadcast.to(room).emit("otherUserTyping", payload)
     })
     socket.on("userDoneTyping", (payload)=>{
-        socket.broadcast.emit("otherUserDoneTyping", payload)
+        socket.broadcast.to(room).emit("otherUserDoneTyping", payload)
     })
     socket.on("userDisconnected", (payload)=>{
-        let newUsers = users.filter(user => user !== payload.user)
-        users = newUsers
-        console.log(payload.user)
-        socket.broadcast.emit("userOtherDisconnected", {users})
+        let newUsers = users[room].filter(user => user !== payload.user)
+        users[room] = newUsers
+        console.log("User disconnected")
+        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room]})
         // io.emit("userDisconnected", {users})
     })
 })

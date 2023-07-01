@@ -9,12 +9,17 @@ export const Home = () => {
 	const [user, setUser] = useState('')
 	const [users, setUsers] = useState([])
 	const [otherUserTyping, setOtherUserTyping] = useState(null)
+	const [room, setRoom] = useState("Room1")
 	let scrollRef = useRef()
 	const inputRef = useRef();
 	const userRef = useRef();
 	function setUserStart(e){
 		e.preventDefault()
 		setUser(userRef.current.value)
+	}
+	function changeUserRoom(room){
+		setRoom(room)
+		socket.emit("changeRoom", {room, user})
 	}
 	function userTyping(){
 		if(inputRef.current.value === ""){
@@ -149,14 +154,14 @@ export const Home = () => {
 						</div>
 						<div>
 							<form className="w-full h-full flex row-span-1">
-								<input ref={inputRef} type="text" className="focus:outline-none bg-zinc-900 w-5/6 h-full text-white text-2xl font-semibold pl-4" placeholder="Enter message" onChange={userTyping}/>
+								<input ref={inputRef} type="text" className="focus:outline-none bg-zinc-900 w-5/6 h-full text-white text-2xl font-semibold pl-4" placeholder={`Enter message for ${room}`} onChange={userTyping}/>
 								<button type="submit" className="bg-green-500 w-1/6 h-full text-2xl bg-opacity-40 hover:bg-opacity-80 font-semibold" onClick={(e)=> sendMessage(e)}>Send</button>
 							</form>
 						</div>
 					</div>
 					<div className="m-3 overflow-y-auto">
-						<div style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 bg-opacity-40 hover:cursor-pointer transition-all hover:bg-zinc-800 rounded-2xl h-1/5 mb-3 w-full">Family Chat</div>
-						<div style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 transition-all hover:bg-zinc-800 bg-opacity-40 hover:cursor-pointer rounded-2xl h-1/5 mb-3 w-full">General</div>
+						<div onClick={()=>changeUserRoom("Room1")} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 bg-opacity-40 hover:cursor-pointer transition-all hover:bg-zinc-800 rounded-2xl h-1/5 mb-3 w-full">Family Chat</div>
+						<div onClick={()=>changeUserRoom("Room2")} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 transition-all hover:bg-zinc-800 bg-opacity-40 hover:cursor-pointer rounded-2xl h-1/5 mb-3 w-full">General</div>
 						<div style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-5xl font-bold flex justify-center items-center transition-all hover:bg-zinc-950 hover:cursor-pointer bg-zinc-900 bg-opacity-40 rounded-2xl h-1/5 w-full">+</div>
 					</div>
 				</div>
