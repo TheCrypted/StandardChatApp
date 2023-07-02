@@ -1,5 +1,4 @@
 export const Alert = ({message, color}) => {
-	console.log(color)
 	return (
 		<div className="w-full mb-10 h-[8.5%] flex justify-center">
 		<div  className={"mt-4  w-[60%] h-full bg-white rounded-md bg-opacity-60 " + color + " drop-shadow-2xl flex items-center text-white font-semibold text-xl flex items-center justify-center flex-wrap"}>

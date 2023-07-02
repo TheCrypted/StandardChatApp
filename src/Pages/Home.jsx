@@ -61,8 +61,9 @@ export const Home = () => {
 		if(inputRef.current.value === ""){
 			return;
 		}
+		let message = inputRef.current.value
 		socket.emit("sendMessage", {
-			message: inputRef.current.value,
+			message: message,
 			user
 		})
 		socket.emit("userDoneTyping",{
@@ -206,7 +207,6 @@ export const Home = () => {
 											<Message key={message.id} text={message.message} sent={!message.received} userPrev={previousItemUser} name={message.user}/>
 										)
 									} else if(message.type === "alert") {
-										console.log(message.color, "here")
 										return (
 											<Alert key={message.id} message={message.message} color={message.color}/>
 										)
