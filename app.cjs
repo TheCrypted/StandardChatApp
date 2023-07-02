@@ -30,7 +30,7 @@ io.on("connection", (socket)=>{
         let newUsers = users[room].filter(user => user !== payload.user)
         users[room] = newUsers
         console.log(`User ${payload.user} changed rooms`)
-        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room]})
+        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room], disconnectedUser: payload.user})
         socket.leave(room)
         //Join new room and update all existing room users of new Joinee
         room = payload.room
@@ -39,7 +39,8 @@ io.on("connection", (socket)=>{
         }
         users[room].push(payload.user)
         socket.join(payload.room)
-        io.to(room).emit("userOnline", {users: users[room]})
+        socket.broadcast.to(room).emit("userOnline", {users: users[room], user: payload.user})
+        socket.emit("userOnline", {users: users[room]})
     })
     socket.on("sendMessage", (payload)=>{
         if(!users[room].includes(payload.user)){
@@ -47,7 +48,6 @@ io.on("connection", (socket)=>{
             io.to(room).emit("userOnline", {users: users[room]})
         }
         socket.broadcast.to(room).emit("receiveMessage", payload)
-        // socket.emit("userOnline", {users})
     })
     socket.on("userTyping", (payload)=>{
         socket.broadcast.to(room).emit("otherUserTyping", payload)
@@ -59,8 +59,7 @@ io.on("connection", (socket)=>{
         let newUsers = users[room].filter(user => user !== payload.user)
         users[room] = newUsers
         console.log("User disconnected")
-        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room]})
-        // io.emit("userDisconnected", {users})
+        socket.broadcast.to(room).emit("userOtherDisconnected", {users: users[room], disconnectedUser: payload.user})
     })
 })
 server.listen(PORT, ()=>{

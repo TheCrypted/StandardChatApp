@@ -2,14 +2,19 @@
 import io from "socket.io-client"
 import {Message} from "../components/Message.jsx";
 import {useEffect, useRef, useState} from "react";
+import {Alert} from "../components/Alert.jsx";
 
 const socket = io.connect("http://localhost:3030")
 export const Home = () => {
-	const [messages, setMessages] = useState([])
+	const [room, setRoom] = useState("Room1")
+	const [messages, setMessages] = useState([{
+		message: `Welcome to ${room}`,
+		type: "alert",
+		color: "bg-blue-400"
+	}])
 	const [user, setUser] = useState('')
 	const [users, setUsers] = useState([])
 	const [otherUserTyping, setOtherUserTyping] = useState(null)
-	const [room, setRoom] = useState("Room1")
 	const [rooms, setRooms] = useState(["Room1", "Room2"])
 	const [newRoom, setNewRoom] = useState(false)
 	const newNameRef = useRef()
@@ -23,7 +28,13 @@ export const Home = () => {
 	function changeUserRoom(room){
 		setRoom(room)
 		socket.emit("changeRoom", {room, user})
-		setMessages([])
+		setMessages([
+			{
+				message: `Welcome to ${room}`,
+				type:"alert",
+				color: "bg-blue-400"
+			}
+		])
 	}
 	function userTyping(){
 		if(inputRef.current.value === ""){
@@ -63,6 +74,7 @@ export const Home = () => {
 				message: inputRef.current.value,
 				user: user,
 				received: false,
+				type: "message"
 			},
 		];
 		setMessages(updatedMessages);
@@ -77,9 +89,9 @@ export const Home = () => {
 					message,
 					user: data.user,
 					received: true,
+					type:"message"
 				},
 			]);
-			console.log(messages);
 		};
 
 		const otherUserTyping = (data) => {
@@ -91,21 +103,41 @@ export const Home = () => {
 
 		const userChange = (data)=>{
 			setUsers(data.users)
-			console.log(data.users)
+			if(data.user) {
+				setMessages((prevMessages) => [
+					...prevMessages,
+					{
+						message: `${data.user} has joined the chat`,
+						type: "alert",
+						color: "bg-green-400"
+					},
+				])
+			}
+		}
+		const userDisconnect = (data)=>{
+			userChange(data);
+			setMessages((prevMessages) => [
+				...prevMessages,
+				{
+					message: `${data.disconnectedUser} has left the chat`,
+					type:"alert",
+					color: "bg-red-400"
+				},
+			]);
 		}
 
 		socket.on("receiveMessage", receiveMessage);
 		socket.on("otherUserTyping", otherUserTyping);
 		socket.on("otherUserDoneTyping", otherUserDoneTyping);
 		socket.on("userOnline", userChange)
-		socket.on("userOtherDisconnected", userChange)
+		socket.on("userOtherDisconnected", userDisconnect)
 
 		return () => {
 			socket.off("receiveMessage", receiveMessage);
 			socket.off("otherUserTyping", otherUserTyping);
 			socket.off("otherUserDoneTyping", otherUserDoneTyping);
-			socket.on("userOnline", userChange)
-			socket.on("userDisconnected", userChange)
+			socket.off("userOnline", userChange)
+			socket.off("userOtherDisconnected", userDisconnect)
 		};
 	}, [socket])
 
@@ -169,10 +201,16 @@ export const Home = () => {
 							{
 								messages.map((message, index)=>{
 									let previousItemUser = index > 0 ? messages[index-1].user : null;
-									let nextItemUser = index + 1 < messages.length - 1 ? messages[index + 1].user : null;
-									return (
-										<Message key={message.id} text={message.message} sent={!message.received} userPrev={previousItemUser} name={message.user} />
-									)
+									if(message.type === "message") {
+										return (
+											<Message key={message.id} text={message.message} sent={!message.received} userPrev={previousItemUser} name={message.user}/>
+										)
+									} else if(message.type === "alert") {
+										console.log(message.color, "here")
+										return (
+											<Alert key={message.id} message={message.message} color={message.color}/>
+										)
+									}
 								})
 							}
 							{otherUserTyping && <Message text={otherUserTyping + " is typing"} sent={false} name={otherUserTyping} />}
