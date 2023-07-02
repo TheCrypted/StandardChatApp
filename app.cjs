@@ -12,6 +12,7 @@ let users = {
 app.use(cors());
 app.use(express.json());
 app.use(urlencoded({extended: true}));
+// app.use(express.static("dist"));
 
 const server = http.createServer(app)
 const io = new Server(server, {

@@ -10,6 +10,9 @@ export const Home = () => {
 	const [users, setUsers] = useState([])
 	const [otherUserTyping, setOtherUserTyping] = useState(null)
 	const [room, setRoom] = useState("Room1")
+	const [rooms, setRooms] = useState(["Room1", "Room2"])
+	const [newRoom, setNewRoom] = useState(false)
+	const newNameRef = useRef()
 	let scrollRef = useRef()
 	const inputRef = useRef();
 	const userRef = useRef();
@@ -20,6 +23,7 @@ export const Home = () => {
 	function changeUserRoom(room){
 		setRoom(room)
 		socket.emit("changeRoom", {room, user})
+		setMessages([])
 	}
 	function userTyping(){
 		if(inputRef.current.value === ""){
@@ -31,6 +35,15 @@ export const Home = () => {
 		socket.emit("userTyping",{
 			user
 		})
+	}
+	function createNewRoom(e){
+		e.preventDefault()
+		let updatedRooms = [
+			...rooms,
+			newNameRef.current.value
+		]
+		setRooms(updatedRooms)
+		setNewRoom(false)
 	}
 	function sendMessage(e){
 		e.preventDefault();
@@ -125,6 +138,18 @@ export const Home = () => {
 					</form>
 				</div>
 			</div>}
+			{newRoom === true && <div className="w-full h-full absolute bg-black bg-opacity-70 z-10 flex items-center justify-center">
+				<div className="w-1/4 rounded-xl p-3 shadow-xl h-1/5 bg-zinc-800 text-white font-semibold text-xl">
+					Enter/Create a room:
+					<form className="w-full h-full flex  items-center">
+						<input required ref={newNameRef} type="text" className="w-[80%] rounded-l-xl h-2/6 bg-zinc-900 focus:outline-none pl-2" placeholder="Enter name here"/>
+						<button type="submit" className="w-[20%] rounded-r-xl h-2/6 bg-zinc-950" onClick={(e) => {
+							createNewRoom(e)
+						}}>Submit
+						</button>
+					</form>
+				</div>
+			</div>}
 			<div style={{backgroundImage: "url(https://i.pinimg.com/originals/1a/04/69/1a046940247ca498deffecad4b839fc8.jpg)"}} className="flex items-center justify-center bg-cover w-full h-full">
 				<div className="bg-zinc-800 bg-opacity-60 backdrop-blur-2xl rounded-2xl h-5/6 w-5/6 grid grid-cols-[23%_54%_23%] shadow-2xl">
 					<div className="rounded-l-2xl overflow-y-auto p-3">
@@ -159,10 +184,15 @@ export const Home = () => {
 							</form>
 						</div>
 					</div>
-					<div className="m-3 overflow-y-auto">
-						<div onClick={()=>changeUserRoom("Room1")} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 bg-opacity-40 hover:cursor-pointer transition-all hover:bg-zinc-800 rounded-2xl h-1/5 mb-3 w-full">Family Chat</div>
-						<div onClick={()=>changeUserRoom("Room2")} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 transition-all hover:bg-zinc-800 bg-opacity-40 hover:cursor-pointer rounded-2xl h-1/5 mb-3 w-full">General</div>
-						<div style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-5xl font-bold flex justify-center items-center transition-all hover:bg-zinc-950 hover:cursor-pointer bg-zinc-900 bg-opacity-40 rounded-2xl h-1/5 w-full">+</div>
+					<div className=" ml-3 mt-3 pr-2 overflow-y-auto scrollbar">
+						{
+							rooms.map((room, index) => {
+								return (
+									<div key={index} onClick={()=>changeUserRoom(room)} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-2xl font-semibold flex justify-center items-center bg-zinc-900 bg-opacity-40 hover:cursor-pointer transition-all hover:bg-zinc-800 rounded-2xl h-1/5 mb-3 w-full">{room}</div>
+								)
+							})
+						}
+						<div onClick={()=>setNewRoom(true)} style={{boxShadow: "inset 0px 0px 100px rgba(0,0,0,0.3)"}} className="text-white text-5xl font-bold flex justify-center items-center transition-all hover:bg-zinc-950 hover:cursor-pointer bg-zinc-900 bg-opacity-40 rounded-2xl h-1/5 w-full">+</div>
 					</div>
 				</div>
 
