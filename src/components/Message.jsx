@@ -1,9 +1,9 @@
 
 function tagSplit(text){
 	let messageWords = text.split(" ")
-	let firstHalf = text.split("@")[0]
-	let secondHalf = text.split("@")[1]
-	let taggedContent = messageWords.filter(word => word.includes("@"))[0]
+	let firstHalf = text.split("~")[0]
+	let secondHalf = text.split("~")[1]
+	let taggedContent = messageWords.filter(word => word.includes("~"))[0]
 	let taggedWord = taggedContent.slice(1)
 	secondHalf = secondHalf.replace(taggedWord, "")
 	return {

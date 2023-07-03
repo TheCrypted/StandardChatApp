@@ -62,6 +62,18 @@ export const Home = () => {
 			return;
 		}
 		let message = inputRef.current.value
+		if(message.includes("~") && message.includes(".com")){
+			fetch("http://localhost:3030/api/v1/email", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					user
+				}
+			}).then(response => response.json())
+				.then(resp => alert(resp))
+				.catch(err => console.log(err))
+		}
+
 		socket.emit("sendMessage", {
 			message: message,
 			user

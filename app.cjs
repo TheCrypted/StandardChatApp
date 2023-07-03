@@ -6,6 +6,7 @@ const {Server} = require('socket.io')
 const cors = require('cors')
 const {urlencoded} = require("express");
 const {transporter, options} = require("./services/emailer.cjs");
+const routes = require("./Routes/routes.cjs")
 const PORT = 3030;
 let users = {
     Room1: []
@@ -25,6 +26,7 @@ transporter.sendMail(options, (err, info) => {
 app.use(cors());
 app.use(express.json());
 app.use(urlencoded({extended: true}));
+app.use("/api/v1", routes)
 // app.use(express.static("dist"));
 
 const server = http.createServer(app)
