@@ -63,15 +63,39 @@ export const Home = () => {
 		}
 		let message = inputRef.current.value
 		if(message.includes("~") && message.includes(".com")){
+			let messageWords = message.split(" ")
+			console.log(messageWords)
+			let taggedContent = messageWords.filter(word => word.includes("~"))[0]
+			let taggedWord = taggedContent.slice(1)
 			fetch("http://localhost:3030/api/v1/email", {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json",
-					user
-				}
-			}).then(response => response.json())
-				.then(resp => alert(resp))
-				.catch(err => console.log(err))
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					user,
+					toMailer: taggedWord,
+					message,
+				}),
+			}).then(response =>{
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{
+						type: "alert",
+						message: `E-mail has been sent to ${taggedWord}`,
+						color: "bg-yellow-400"
+					}
+				])
+			}).catch(err =>{
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{
+						type: "alert",
+						message: `E-mail has been sent to ${taggedWord}`,
+						color: "bg-yellow-400"
+					}
+				])
+			})
 		}
 
 		socket.emit("sendMessage", {

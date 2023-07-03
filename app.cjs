@@ -12,16 +12,16 @@ let users = {
     Room1: []
 }
 
-const emailTemplate = fs.readFileSync("./services/emailTemplate.html", "utf-8")
-const emailHTML = emailTemplate.replace("{{user}}", "Arnav")
-options.html = emailHTML
-transporter.sendMail(options, (err, info) => {
-    if(err){
-        console.log(err);
-    } else {
-        console.log(`Email sent: ${info}`)
-    }
-})
+// const emailTemplate = fs.readFileSync("./services/emailTemplate.html", "utf-8")
+// const emailHTML = emailTemplate.replace("{{user}}", "Arnav")
+// options.html = emailHTML
+// transporter.sendMail(options, (err, info) => {
+//     if(err){
+//         console.log(err);
+//     } else {
+//         console.log(`Email sent: ${info}`)
+//     }
+// })
 
 app.use(cors());
 app.use(express.json());
